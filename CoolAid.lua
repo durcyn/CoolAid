@@ -45,6 +45,7 @@ local defaults = {
 local cooldowns = {
 	[(GetSpellInfo(57994))] = 6, -- Wind Shear
 	[(GetSpellInfo(1766))] = 8, -- Kick
+	[(GetSpellInfo(80964))] = 10, -- Skull Bash (Talented)
 	[(GetSpellInfo(47528))] = 10, -- Mind Freeze
 	[(GetSpellInfo(6552))] = 10, -- Pummel
 	[(GetSpellInfo(72))] = 12, -- Shield Bash
