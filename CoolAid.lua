@@ -49,7 +49,6 @@ local cooldowns = {
 	[(GetSpellInfo(47528))] = 10, -- Mind Freeze
 	[(GetSpellInfo(6552))] = 10, -- Pummel
 	[(GetSpellInfo(85285))] = 10, -- Rebuke
-	[(GetSpellInfo(72))] = 12, -- Shield Bash
 	[(GetSpellInfo(2139))] = 24, -- Counterspell
 	[(GetSpellInfo(19647))] = 24, -- Spell Lock
 	}
