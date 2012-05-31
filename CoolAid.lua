@@ -411,7 +411,7 @@ function CoolAid:LibCandyBar_Stop(callback, bar)
 	end
 end
 
-function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(_,timestamp,event,hideCaster,srcGUID,srcName,srcFlags,dstGUID,dstName,dstFlags,spellID,spellName,_,extraID,extraName)
+function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(_,timestamp,event,hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName)
 	if (event=="SPELL_CAST_SUCCESS" or event=="SPELL_INTERRUPT") and bitband(srcFlags,outsider)==0 and (cooldowns[spellName]) and db.spells[spellName] then
 		local id = join("-",srcGUID,spellID)
 		local _,_,icon = GetSpellInfo(spellID)	
