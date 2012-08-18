@@ -3,7 +3,6 @@ local candy = LibStub("LibCandyBar-3.0")
 local media = LibStub("LibSharedMedia-3.0")
 local anchor, db
 
-local GetSpellInfo = _G.GetSpellInfo
 local ipairs = _G.ipairs
 local pairs = _G.pairs
 local unpack = _G.unpack
@@ -43,14 +42,16 @@ local defaults = {
 }
 
 local cooldowns = {
-	[(GetSpellInfo(57994))] = 6, -- Wind Shear
-	[(GetSpellInfo(1766))] = 8, -- Kick
-	[(GetSpellInfo(80964))] = 10, -- Skull Bash (Talented)
-	[(GetSpellInfo(47528))] = 10, -- Mind Freeze
-	[(GetSpellInfo(6552))] = 10, -- Pummel
-	[(GetSpellInfo(85285))] = 10, -- Rebuke
-	[(GetSpellInfo(2139))] = 24, -- Counterspell
-	[(GetSpellInfo(19647))] = 24, -- Spell Lock
+	[57994] = 6, -- Wind Shear
+	[1766] = 8, -- Kick
+	[80964] = 10, -- Skull Bash Bear Form (Talented)
+	[80965] = 10, -- Skull Bash Cat Form (Talented)
+	[47528] = 10, -- Mind Freeze
+	[6552] = 10, -- Pummel
+	[96231] = 10, -- Rebuke
+	[34490] = 20, -- Silencing Shot
+	[2139] = 24, -- Counterspell
+	[19647] = 24, -- Spell Lock
 	}
 
 local options = {
@@ -166,10 +167,12 @@ local options = {
 }
 
 for k in pairs(cooldowns) do
+	local spell, rank = GetSpellInfo(k)
+	if rank == "" then rank = false end
 	defaults.profile.spells[k] = true
-	options.args.spells.args[k] = {
+	options.args.spells.args[spell] = {
 		type = "toggle",
-		name = k,
+		name = rank and string.format("%s (%s)", spell, rank) or spell,
 		get = function () return db.spells[k] end,
 		set = function (i,v) db.spells[k] = v end,
 	}
@@ -412,10 +415,10 @@ function CoolAid:LibCandyBar_Stop(callback, bar)
 end
 
 function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(_,timestamp,event,hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName)
-	if (event=="SPELL_CAST_SUCCESS" or event=="SPELL_INTERRUPT") and bitband(srcFlags,outsider)==0 and (cooldowns[spellName]) and db.spells[spellName] then
+	if (event=="SPELL_CAST_SUCCESS" or event=="SPELL_INTERRUPT") and bitband(srcFlags,outsider)==0 and (cooldowns[spellID]) and db.spells[spellID] then
 		local id = join("-",srcGUID,spellID)
 		local _,_,icon = GetSpellInfo(spellID)	
-		local time = cooldowns[spellName]	
+		local time = cooldowns[spellID]	
 		local text
 		if event=="SPELL_INTERRUPT" and extraName then 
 			text = format("%s: %s (%s)", srcName, spellName, extraName)
