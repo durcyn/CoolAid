@@ -52,6 +52,7 @@ local cooldowns = {
 	[34490] = 20, -- Silencing Shot
 	[2139] = 24, -- Counterspell
 	[19647] = 24, -- Spell Lock
+	[116705] = 15 -- Spear Hand Strike
 	}
 
 local options = {

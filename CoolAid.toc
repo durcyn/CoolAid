@@ -1,4 +1,4 @@
-## Interface: 40300
+## Interface: 50000
 ## Title: CoolAid
 ## Description: Interrupt cooldown synchronization for the rest of us.
 ## Author: durcyn
