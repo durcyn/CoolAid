@@ -1,6 +1,6 @@
-## Interface: 50000
+## Interface: 50001
 ## Title: CoolAid
-## Description: Interrupt cooldown synchronization for the rest of us.
+## Description: Interrupt cooldown tracking. 
 ## Author: durcyn
 ## SavedVariables: CoolAidDB
 ## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibCandybar-3.0, LibSharedMedia-3.0
