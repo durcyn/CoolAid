@@ -42,16 +42,16 @@ local defaults = {
 }
 
 local cooldowns = {
-	[57994] = 6, -- Wind Shear
-	[1766] = 8, -- Kick
-	[80964] = 10, -- Skull Bash Bear Form (Talented)
-	[80965] = 10, -- Skull Bash Cat Form (Talented)
-	[47528] = 10, -- Mind Freeze
-	[6552] = 10, -- Pummel
-	[96231] = 10, -- Rebuke
+	[57994] = 12, -- Wind Shear
+	[1766] = 15, -- Kick
+	[106389] = 15, -- Skull Bash
+	[47528] = 15, -- Mind Freeze
+	[6552] = 15, -- Pummel
+	[96231] = 15, -- Rebuke
 	[34490] = 20, -- Silencing Shot
 	[2139] = 24, -- Counterspell
-	[19647] = 24, -- Spell Lock
+	[19647] = 24, -- Spell Lock (Felhunter)
+	[132409] = 24, -- Spell Lock (Grimoire of Sacrifice/Command Demon)
 	[116705] = 15 -- Spear Hand Strike
 	}
 
