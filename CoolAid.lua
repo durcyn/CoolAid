@@ -169,6 +169,7 @@ local options = {
 
 for k in pairs(cooldowns) do
 	local spell, rank = GetSpellInfo(k)
+	if not spell then return end
 	if rank == "" then rank = false end
 	defaults.profile.spells[k] = true
 	options.args.spells.args[spell] = {
