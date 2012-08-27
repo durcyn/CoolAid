@@ -416,20 +416,23 @@ function CoolAid:LibCandyBar_Stop(callback, bar)
 	end
 end
 
-function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(_,timestamp,event,hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName)
-	if (event=="SPELL_CAST_SUCCESS" or event=="SPELL_INTERRUPT") and bitband(srcFlags,outsider)==0 and (cooldowns[spellID]) and db.spells[spellID] then
-		local id = join("-",srcGUID,spellID)
-		local _,_,icon = GetSpellInfo(spellID)	
-		local time = cooldowns[spellID]	
-		local text
-		if event=="SPELL_INTERRUPT" and extraName then 
-			text = format("%s: %s (%s)", srcName, spellName, extraName)
-		elseif event=="SPELL_CAST_SUCCESS" and dstName then
-			text = format("%s: %s (%s)", srcName, spellName, dstName)
-		else
-			text = format("%s: %s", srcName, spellName)
+function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
+	if event == "SPELL_CAST_SUCCESS" or event =="SPELL_INTERRUPT" then
+		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
+		if bitband(srcFlags,outsider)==0 and (cooldowns[spellID]) and db.spells[spellID] then
+			local id = join("-",srcGUID,spellID)
+			local _,_,icon = GetSpellInfo(spellID)	
+			local time = cooldowns[spellID]	
+			local text
+			if event=="SPELL_INTERRUPT" and extraName then 
+				text = format("%s: %s (%s)", srcName, spellName, extraName)
+			elseif event=="SPELL_CAST_SUCCESS" and dstName then
+				text = format("%s: %s (%s)", srcName, spellName, dstName)
+			else
+				text = format("%s: %s", srcName, spellName)
+			end
+			startBar(id, text, time, icon)
 		end
-		startBar(id, text, time, icon)
 	end
 end
 
