@@ -42,18 +42,19 @@ local defaults = {
 }
 
 local cooldowns = {
-	[57994] = 12, -- Wind Shear
-	[1766] = 15, -- Kick
+	[57994] = 12, -- Wind Shear (Shaman)
+	[1766] = 15, -- Kick (Rogue)
 	[80964] = 15, -- Skull Bash (Bea)
 	[80965] = 15, -- Skull Bash (Cat)
-	[47528] = 15, -- Mind Freeze
-	[6552] = 15, -- Pummel
-	[96231] = 15, -- Rebuke
-	[34490] = 20, -- Silencing Shot
-	[2139] = 24, -- Counterspell
+	[47528] = 15, -- Mind Freeze (Deathknight)
+	[6552] = 15, -- Pummel (Warrior)
+	[96231] = 15, -- Rebuke (Paladin)
+	[116705] = 15 -- Spear Hand Strike (Monk)
+	[34490] = 20, -- Silencing Shot (Hunter)
+	[2139] = 24, -- Counterspell (Mage)
 	[19647] = 24, -- Spell Lock (Felhunter)
 	[132409] = 24, -- Spell Lock (Grimoire of Sacrifice/Command Demon)
-	[116705] = 15 -- Spear Hand Strike
+	[115782] = 24, -- Optical Blast (Observer - Felhunter Grimoire of Supremacy) 
 	}
 
 local options = {
