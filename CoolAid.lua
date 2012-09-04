@@ -54,7 +54,8 @@ local cooldowns = {
 	[2139] = 24, -- Counterspell (Mage)
 	[19647] = 24, -- Spell Lock (Felhunter)
 	[132409] = 24, -- Spell Lock (Grimoire of Sacrifice/Command Demon)
-	[115782] = 24 -- Optical Blast (Observer - Felhunter Grimoire of Supremacy) 
+	[115782] = 24, -- Optical Blast (Observer - Felhunter Grimoire of Supremacy) 
+	[15487] = 45 -- Silence (Priest)
 	}
 
 local options = {
