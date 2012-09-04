@@ -424,7 +424,7 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
 		if bitband(srcFlags,outsider)==0 and (cooldowns[spellID]) and db.spells[spellID] then
 			local id = join("-",srcGUID,spellID)
-			local _,_,icon = GetSpellInfo(spellID)	
+			local icon = GetSpellTexture(spellID)	
 			local time = cooldowns[spellID]	
 			local text
 			if event=="SPELL_INTERRUPT" and extraName then 
