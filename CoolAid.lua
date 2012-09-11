@@ -514,7 +514,7 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 			if db.dispels[spellID] then
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
-				local time = interrupts[spellID]
+				local time = dispels[spellID]
 				local text = format("%s: %s (%s)", srcName, dstName, extraName)
 				startBar(id, text, time, icon, true)
 			end
