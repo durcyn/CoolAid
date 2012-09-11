@@ -65,13 +65,15 @@ local interrupts = {
 	}
 
 local dispels = {
-	[475] = 8,    -- Remove Curse
-	[2782] = 8,   -- Remove Corruption
-	[4987] = 8,   -- Cleanse
-	[28133] = 8,  -- Cure Disease
-	[51886] = 8,  -- Cleanse Spirit
-	[32375] = 15, -- Mass Dispel
-	[89808] = 10  -- Singe Magic
+	[475] = 8,     -- Remove Curse
+	[2782] = 8,    -- Remove Corruption
+	[4987] = 8,    -- Cleanse
+	[28133] = 8,   -- Cure Disease
+	[51886] = 8,   -- Cleanse Spirit
+	[115450] = 8,  -- Detox
+	[89808] = 10,  -- Singe Magic
+	[132411] = 10, -- Singe Magic (Grimoire of Sacrifice/Command Demon)
+	[32375] = 15   -- Mass Dispel
 	}
 
 local options = {
@@ -194,30 +196,29 @@ local options = {
 }
 
 for k in pairs(interrupts) do
-	local spell, rank = GetSpellInfo(k)
+	local spell = (GetSpellInfo(k))
 	if not spell then return end
-	if rank == "" then rank = false end
 	defaults.profile.interrupts[k] = true
 	options.args.interrupts.args[spell] = {
 		type = "toggle",
-		name = rank and format("%s (%s)", spell, rank) or spell,
+		name = spell, 
 		get = function () return db.interrupts[k] end,
 		set = function (i,v) db.interrupts[k] = v end,
 	}
 end
 
 for k in pairs(dispels) do
-	local spell, rank = GetSpellInfo(k)
+	local spell = (GetSpellInfo(k))
 	if not spell then return end
-	if rank == "" then rank = false end
 	defaults.profile.dispels[k] = true
 	options.args.dispels.args[spell] = {
 		type = "toggle",
-		name = rank and format("%s (%s)", spell, rank) or spell,
+		name = spell, 
 		get = function () return db.dispels[k] end,
 		set = function (i,v) db.dispels[k] = v end,
 	}
 end
+
 -- Credit to the BigWigs team (Rabbit, Ammo, et al) for the anchor code 
 local function sortBars(a, b)
 	return (a.remaining > b.remaining and db.growup) and true or false
@@ -305,7 +306,8 @@ local function stopBar(id)
 	return bar
 end
 
-local function startBar(id, text, duration, icon)
+local function startBar(id, text, duration, icon, override)
+	if getBar(id) and not override then return end
 	stopBar(id)
 	local bar = candy:New(media:Fetch("statusbar", db.texture), db.width, db.height)
 	bar:Set("anchor", anchor)
@@ -424,13 +426,27 @@ function CoolAid:OnInitialize()
 	local optFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("CoolAid", "CoolAid")
 	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(CoolAid.db)
 
-	if self.db.profile.spells then  -- database upgrade
+	-- database upgrade
+	if self.db.profile.spells then
 		self.db.profile.interrupts = self.db.profile.interrupts or {}
 		for k,v in pairs(self.db.profile.spells) do
 			self.db.profile.interrupts[k] = v
 		end
 		wipe(self.db.profile.spells)
 		self.db.profile.spells = nil
+	end
+
+	-- clean up removed spells so the CLEU handler doesn't explode
+	if self.db.profile.interrupts then
+		for k,v in pairs(self.db.profile.interrupts) do
+			if not interrupts[k] then self.db.profile.interrupts[k] = nil end
+		end
+	end
+	if self.db.profile.dispels then
+		for k,v in pairs(self.db.profile.dispels) do
+			if not dispels[k] then self.db.profile.dispels[k] = nil end
+		end
+
 	end
 end
 
@@ -464,18 +480,44 @@ function CoolAid:LibCandyBar_Stop(callback, bar)
 end
 
 function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
-	if event == "SPELL_CAST_SUCCESS" or event =="SPELL_INTERRUPT" or event == "SPELL_DISPEL" then
+	if event == "SPELL_CAST_SUCCESS" then
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
-		if (bitband(srcFlags,outsider) == 0) and ((interrupts[spellID]) and db.interrupts[spellID]) or ((dispels[spellID]) and db.dispels[spellID]) then
-			local id = join("-",srcGUID,spellID)
-			local icon = GetSpellTexture(spellID)	
-			local time = interrupts[spellID]	
-			local text = format("%s: %s", srcName, dstName)
-			if (event == "SPELL_INTERRUPT" or event == "SPELL_DISPEL") and extraName then
-				text = format("%s: %s (%s)", srcName, dstName, extraName)
+		if bitband(srcFlags, outsider) == 0 then
+			if db.interrupts[spellID] then
+				local id = join("-", srcGUID, spellID)
+				local icon = GetSpellTexture(spellID)
+				local time = interrupts[spellID]
+				local text = format("%s: %s", srcName, dstName)
+				startBar(id, text, time, icon)
+			elseif db.dispels[spellID] then
+				local id = join("-", srcGUID, spellID)
+				local icon = GetSpellTexture(spellID)
+				local time = dispels[spellID]
+				local text = format("%s: %s", srcName, dstName == srcName and spellName or dstName)
+				startBar(id, text, time, icon, false)
 			end
-			startBar(id, text, time, icon)
+		end
+	elseif event == "SPELL_INTERRUPT" then
+		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
+		if bitband(srcFlags, outsider) == 0 then
+			if db.interrupts[spellID] then
+				local id = join("-", srcGUID, spellID)
+				local icon = GetSpellTexture(spellID)
+				local time = interrupts[spellID]
+				local text = format("%s: %s (%s)", srcName, dstName, extraName)
+				startBar(id, text, time, icon, true)
+			end
+		end
+	elseif event == "SPELL_DISPEL" then
+		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
+		if bitband(srcFlags, outsider) == 0 then
+			if db.dispels[spellID] then
+				local id = join("-", srcGUID, spellID)
+				local icon = GetSpellTexture(spellID)
+				local time = interrupts[spellID]
+				local text = format("%s: %s (%s)", srcName, dstName, extraName)
+				startBar(id, text, time, icon, true)
+			end
 		end
 	end
 end
-
