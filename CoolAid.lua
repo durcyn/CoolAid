@@ -55,6 +55,7 @@ local interrupts = {
 	[47528] = 15, -- Mind Freeze (Deathknight)
 	[6552] = 15, -- Pummel (Warrior)
 	[96231] = 15, -- Rebuke (Paladin)
+	[31935] = 15, -- Avenger's Shield (Paladin)
 	[116705] = 15, -- Spear Hand Strike (Monk)
 	[34490] = 20, -- Silencing Shot (Hunter)
 	[2139] = 24, -- Counterspell (Mage)
