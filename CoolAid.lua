@@ -268,16 +268,13 @@ end
 for k in pairs(dispels) do
 	local spell = (GetSpellInfo(k))
 	if not spell then return end
-	local count = 100
 	defaults.profile.dispels[k] = true
 	CoolAid.options.args.dispels.args[spell] = {
 		type = "toggle",
 		name = spell, 
 		get = function () return db.dispels[k] end,
 		set = function (i,v) db.dispels[k] = v end,
-		order = count,
 	}
-	count = count + 1
 end
 
 -- Credit to the BigWigs team (Rabbit, Ammo, et al) for the anchor code 
