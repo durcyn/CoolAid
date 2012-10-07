@@ -43,6 +43,8 @@ local defaults = {
 			text = { 1, 1, 1 },
 			bar = { 0.25, 0.33, 0.68, 1 },
 		},
+		allinterrupts = true,
+		alldispels = true,
 		interrupts = {},
 		dispels = {},
 	},
@@ -78,7 +80,7 @@ local dispels = {
 	[32375] = 15   -- Mass Dispel
 	}
 
-local options = {
+CoolAid.options = {
 	type = "group",
 	args = {
 		toggle = {
@@ -196,14 +198,56 @@ local options = {
 			name = 'Interrupts',
 			desc = 'Toggle interrupt timer displays',
 			order = 20,
-			args = {},
+			args = {
+				global = {
+					type = "toggle",
+					name = "All Interrupts",
+					desc = "Completely enable or disable all interrupt handling",
+					order = 1,
+					get = function() return db.allinterrupts end,
+					set = function(info,value)
+						for k,v in pairs(CoolAid.options.args.interrupts.args) do
+							if v.type == "toggle" and not v.order then
+								v.disabled = not value
+							end
+						end
+						db.allinterrupts = value
+					end,
+				},
+				header = {
+					type = "header",
+					name = "Interrupts",
+					order = 2,
+				},
+			},
 		},
 		dispels = {
 			type = 'group',
 			name = 'Dispels',
 			desc = 'Toggle dispel timer displays',
 			order = 30,
-			args = {},
+			args = {
+				global = {
+					type = "toggle",
+					name = "All Dispels",
+					desc = "Completely enable or disable all dispel handling",
+					order = 1,
+					get = function() return db.alldispels end,
+					set = function(info, value)
+						db.alldispels = value
+						for k,v in pairs(CoolAid.options.args.dispels.args) do
+							if v.type == "toggle" and not v.order then
+								v.disabled = not value
+							end
+						end
+					end,
+				},
+				header = {
+					type = "header",
+					name = "Dispels",
+					order = 2,
+				},
+			},
 		},
 	},
 }
@@ -212,24 +256,28 @@ for k in pairs(interrupts) do
 	local spell = (GetSpellInfo(k))
 	if not spell then return end
 	defaults.profile.interrupts[k] = true
-	options.args.interrupts.args[spell] = {
+	CoolAid.options.args.interrupts.args[spell] = {
 		type = "toggle",
 		name = spell, 
 		get = function () return db.interrupts[k] end,
 		set = function (i,v) db.interrupts[k] = v end,
+		disabled = false,
 	}
 end
 
 for k in pairs(dispels) do
 	local spell = (GetSpellInfo(k))
 	if not spell then return end
+	local count = 100
 	defaults.profile.dispels[k] = true
-	options.args.dispels.args[spell] = {
+	CoolAid.options.args.dispels.args[spell] = {
 		type = "toggle",
 		name = spell, 
 		get = function () return db.dispels[k] end,
 		set = function (i,v) db.dispels[k] = v end,
+		order = count,
 	}
+	count = count + 1
 end
 
 -- Credit to the BigWigs team (Rabbit, Ammo, et al) for the anchor code 
@@ -435,9 +483,10 @@ function CoolAid:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileCopied", "UpdateProfile")
 	self.db.RegisterCallback(self, "OnProfileReset", "UpdateProfile")
 	anchor = createAnchor("CoolAidAnchor", "CoolAid")
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("CoolAid", options)
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("CoolAid", CoolAid.options)
 	local optFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("CoolAid", "CoolAid")
-	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(CoolAid.db)
+	CoolAid.options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(CoolAid.db)
+	LibStub("AceConsole-3.0"):RegisterChatCommand( "coolaid", function() InterfaceOptionsFrame_OpenToCategory("CoolAid") end )
 
 	-- database upgrade
 	if self.db.profile.spells then
@@ -496,13 +545,13 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 	if event == "SPELL_CAST_SUCCESS" then
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
 		if bitband(srcFlags, outsider) == 0 then
-			if db.interrupts[spellID] then
+			if db.allinterrupts and db.interrupts[spellID] then
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = interrupts[spellID]
 				local text = db.brief and srcName or format("%s: %s", srcName, dstName)
 				startBar(id, text, time, icon)
-			elseif db.dispels[spellID] then
+			elseif db.alldispels and db.dispels[spellID] then
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = dispels[spellID]
@@ -513,7 +562,7 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 	elseif event == "SPELL_INTERRUPT" then
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
 		if bitband(srcFlags, outsider) == 0 then
-			if db.interrupts[spellID] then
+			if db.allinterrupts and db.interrupts[spellID] then
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = interrupts[spellID]
@@ -524,7 +573,7 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 	elseif event == "SPELL_DISPEL" then
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
 		if bitband(srcFlags, outsider) == 0 then
-			if db.dispels[spellID] then
+			if db.alldispels and db.dispels[spellID] then
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = dispels[spellID]
