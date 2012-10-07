@@ -31,6 +31,7 @@ local defaults = {
 		width = 250,
 		height = 14,
 		scale = 1,
+		brief = false,
 		pos = {
 			p = "CENTER",
 			rp = "CENTER",
@@ -95,6 +96,17 @@ local options = {
 			desc = "Bar settings",
 			order = 10,
 			args = {
+				brief = {
+					type = "toggle",
+					name = "Brief Text",
+					desc = "Toggle showing caster name only on bars", 
+					get = function() return db.brief end,
+					set = function (info, v)
+						db.brief = v
+						CoolAid:UpdateAnchor()
+					end,
+					order = 1,
+				},
 				growth = {
 					type = "toggle",
 					name = "Grow upwards",
@@ -104,7 +116,7 @@ local options = {
 						db.growth = v
 						CoolAid:UpdateAnchor()
 					end,
-					order = 1,
+					order = 2,
 				},
 				height = {
 					type = "range",
@@ -488,13 +500,13 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = interrupts[spellID]
-				local text = format("%s: %s", srcName, dstName)
+				local text = db.brief and srcName or format("%s: %s", srcName, dstName)
 				startBar(id, text, time, icon)
 			elseif db.dispels[spellID] then
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = dispels[spellID]
-				local text = format("%s: %s", srcName, dstName == srcName and spellName or dstName)
+				local text = db.brief and srcName or format("%s: %s", srcName, dstName == srcName and spellName or dstName)
 				startBar(id, text, time, icon, false)
 			end
 		end
@@ -505,7 +517,7 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = interrupts[spellID]
-				local text = format("%s: %s (%s)", srcName, dstName, extraName)
+				local text = db.brief and srcName or format("%s: %s (%s)", srcName, dstName, extraName)
 				startBar(id, text, time, icon, true)
 			end
 		end
@@ -516,7 +528,7 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = dispels[spellID]
-				local text = format("%s: %s (%s)", srcName, dstName, extraName)
+				local text = db.brief and srcName or format("%s: %s (%s)", srcName, dstName, extraName)
 				startBar(id, text, time, icon, true)
 			end
 		end
