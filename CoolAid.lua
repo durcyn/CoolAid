@@ -80,7 +80,7 @@ local dispels = {
 	[32375] = 15   -- Mass Dispel
 	}
 
-CoolAid.options = {
+local options = {
 	type = "group",
 	args = {
 		toggle = {
@@ -206,11 +206,6 @@ CoolAid.options = {
 					order = 1,
 					get = function() return db.allinterrupts end,
 					set = function(info,value)
-						for k,v in pairs(CoolAid.options.args.interrupts.args) do
-							if v.type == "toggle" and not v.order then
-								v.disabled = not value
-							end
-						end
 						db.allinterrupts = value
 					end,
 				},
@@ -235,11 +230,6 @@ CoolAid.options = {
 					get = function() return db.alldispels end,
 					set = function(info, value)
 						db.alldispels = value
-						for k,v in pairs(CoolAid.options.args.dispels.args) do
-							if v.type == "toggle" and not v.order then
-								v.disabled = not value
-							end
-						end
 					end,
 				},
 				header = {
@@ -256,12 +246,12 @@ for k in pairs(interrupts) do
 	local spell = (GetSpellInfo(k))
 	if not spell then return end
 	defaults.profile.interrupts[k] = true
-	CoolAid.options.args.interrupts.args[spell] = {
+	options.args.interrupts.args[spell] = {
 		type = "toggle",
 		name = spell, 
 		get = function () return db.interrupts[k] end,
 		set = function (i,v) db.interrupts[k] = v end,
-		disabled = false,
+		disabled = function() return db.allinterrupts end,
 	}
 end
 
@@ -269,11 +259,12 @@ for k in pairs(dispels) do
 	local spell = (GetSpellInfo(k))
 	if not spell then return end
 	defaults.profile.dispels[k] = true
-	CoolAid.options.args.dispels.args[spell] = {
+	options.args.dispels.args[spell] = {
 		type = "toggle",
 		name = spell, 
 		get = function () return db.dispels[k] end,
 		set = function (i,v) db.dispels[k] = v end,
+		disabled = function() return db.alldispels end,
 	}
 end
 
@@ -480,9 +471,9 @@ function CoolAid:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileCopied", "UpdateProfile")
 	self.db.RegisterCallback(self, "OnProfileReset", "UpdateProfile")
 	anchor = createAnchor("CoolAidAnchor", "CoolAid")
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("CoolAid", CoolAid.options)
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("CoolAid", options)
 	local optFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("CoolAid", "CoolAid")
-	CoolAid.options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(CoolAid.db)
+	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(CoolAid.db)
 	LibStub("AceConsole-3.0"):RegisterChatCommand( "coolaid", function() InterfaceOptionsFrame_OpenToCategory("CoolAid") end )
 
 	-- database upgrade
@@ -543,12 +534,16 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
 		if bitband(srcFlags, outsider) == 0 then
 			if db.allinterrupts and db.interrupts[spellID] then
+				srcName = strsplit(" - ", srcName, 2)
+				dstName = strsplit(" - ", dstName, 2)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = interrupts[spellID]
 				local text = db.brief and srcName or format("%s: %s", srcName, dstName)
 				startBar(id, text, time, icon)
 			elseif db.alldispels and db.dispels[spellID] then
+				srcName = strsplit(" - ", srcName, 2)
+				dstName = strsplit(" - ", dstName, 2)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = dispels[spellID]
@@ -560,6 +555,8 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
 		if bitband(srcFlags, outsider) == 0 then
 			if db.allinterrupts and db.interrupts[spellID] then
+				srcName = strsplit(" - ", srcName, 2)
+				dstName = strsplit(" - ", dstName, 2)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = interrupts[spellID]
@@ -571,6 +568,8 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
 		if bitband(srcFlags, outsider) == 0 then
 			if db.alldispels and db.dispels[spellID] then
+				srcName = strsplit(" - ", srcName, 2)
+				dstName = strsplit(" - ", dstName, 2)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = dispels[spellID]
