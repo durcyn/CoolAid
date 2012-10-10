@@ -534,16 +534,16 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
 		if bitband(srcFlags, outsider) == 0 then
 			if db.allinterrupts and db.interrupts[spellID] then
-				srcName = strsplit(" - ", srcName, 2)
-				dstName = strsplit(" - ", dstName, 2)
+				srcName = strsplit("-", srcName, 2)
+				dstName = strsplit("-", dstName, 2)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = interrupts[spellID]
 				local text = db.brief and srcName or format("%s: %s", srcName, dstName)
 				startBar(id, text, time, icon)
 			elseif db.alldispels and db.dispels[spellID] then
-				srcName = strsplit(" - ", srcName, 2)
-				dstName = strsplit(" - ", dstName, 2)
+				srcName = strsplit("-", srcName, 2)
+				dstName = strsplit("-", dstName, 2)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = dispels[spellID]
@@ -555,8 +555,8 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
 		if bitband(srcFlags, outsider) == 0 then
 			if db.allinterrupts and db.interrupts[spellID] then
-				srcName = strsplit(" - ", srcName, 2)
-				dstName = strsplit(" - ", dstName, 2)
+				srcName = strsplit("-", srcName, 2)
+				dstName = strsplit("-", dstName, 2)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = interrupts[spellID]
@@ -568,8 +568,8 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 		local hideCaster,srcGUID,srcName,srcFlags,srcRaidFlags,dstGUID,dstName,dstFlags,dstRaidFlags,spellID,spellName,_,extraID,extraName = ...
 		if bitband(srcFlags, outsider) == 0 then
 			if db.alldispels and db.dispels[spellID] then
-				srcName = strsplit(" - ", srcName, 2)
-				dstName = strsplit(" - ", dstName, 2)
+				srcName = strsplit("-", srcName, 2)
+				dstName = strsplit("-", dstName, 2)
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = dispels[spellID]
