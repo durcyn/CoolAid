@@ -63,8 +63,9 @@ local interrupts = {
 	[34490] = 20, -- Silencing Shot (Hunter)
 	[2139] = 24, -- Counterspell (Mage)
 	[19647] = 24, -- Spell Lock (Felhunter)
-	[132409] = 24, -- Spell Lock (Grimoire of Sacrifice/Command Demon)
-	[115782] = 24, -- Optical Blast (Observer - Felhunter Grimoire of Supremacy) 
+	[132409] = 24, -- Spell Lock (Command Demon)
+	[115782] = 24, -- Optical Blast (Observer) 
+	[119911] = 24, -- Optical Blast (Command Demon)
 	[15487] = 45 -- Silence (Priest)
 	}
 
