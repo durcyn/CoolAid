@@ -252,7 +252,7 @@ for k in pairs(interrupts) do
 		name = spell, 
 		get = function () return db.interrupts[k] end,
 		set = function (i,v) db.interrupts[k] = v end,
-		disabled = function() return db.allinterrupts end,
+		disabled = function() return not db.allinterrupts end,
 	}
 end
 
@@ -265,7 +265,7 @@ for k in pairs(dispels) do
 		name = spell, 
 		get = function () return db.dispels[k] end,
 		set = function (i,v) db.dispels[k] = v end,
-		disabled = function() return db.alldispels end,
+		disabled = function() return not db.alldispels end,
 	}
 end
 
