@@ -4,7 +4,7 @@
 ## Author: durcyn
 ## SavedVariables: CoolAidDB
 ## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibCandybar-3.0, LibSharedMedia-3.0
-
+ 
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
