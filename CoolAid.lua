@@ -543,8 +543,8 @@ function CoolAid:COMBAT_LOG_EVENT_UNFILTERED(callback,timestamp,event,...)
 				local text = db.brief and srcName or format("%s: %s", srcName, dstName)
 				startBar(id, text, time, icon)
 			elseif db.alldispels and db.dispels[spellID] then
-				srcName = strsplit("-", srcName, 2)
-				dstName = strsplit("-", dstName, 2)
+				srcName = srcName and strsplit("-", srcName, 2) or ""
+				dstName = dstName and strsplit("-", dstName, 2) or ""
 				local id = join("-", srcGUID, spellID)
 				local icon = GetSpellTexture(spellID)
 				local time = dispels[spellID]
